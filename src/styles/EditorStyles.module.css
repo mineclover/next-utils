@@ -1,0 +1,162 @@
+.container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.editorSection {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar {
+  width: 300px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  overflow-y: auto;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  height: 100%;
+}
+
+.documentNameInput {
+  font-size: 1.2em;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  width: 300px;
+}
+
+.documentList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.documentList li {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.documentList span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.documentList button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.documentList button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.editorSection :global(.cm-editor) {
+  height: calc(100vh - 200px);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.editorSection :global(.cm-scroller) {
+  font-family: "Fira Code", monospace;
+}
+
+.saveButton {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.saveButton:hover {
+  background-color: #218838;
+}
+
+.editNameInput {
+  font-size: 1em;
+  padding: 5px;
+  width: 100%;
+  border: 1px solid #007bff;
+  border-radius: 3px;
+}
+
+.documentName:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #007bff;
+}
+
+/* YAML 에디터 특정 스타일 */
+.yamlEditor {
+  margin-bottom: 20px;
+}
+
+/* Markdown 에디터 특정 스타일 */
+.markdownEditor {
+  margin-bottom: 20px;
+}
+
+/* TypeScript 에디터 특정 스타일 */
+.typescriptEditor {
+  margin-bottom: 20px;
+}
+
+/* TSX 에디터 특정 스타일 */
+.tsxEditor {
+  margin-bottom: 20px;
+}
+
+/* NavHeader */
+
+.navHeader {
+  background-color: #333;
+  padding: 10px 0;
+}
+
+.navList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.navItem {
+  margin: 0 15px;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.navLink:hover {
+  text-decoration: underline;
+}
+
+/* container 클래스를 수정하여 헤더 공간을 확보합니다 */
+
+.editorContainer {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}

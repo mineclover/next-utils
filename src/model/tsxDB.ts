@@ -1,35 +1,32 @@
 import Dexie, { Table } from "dexie";
 
-export interface Document {
+export interface TSXDocument {
   id?: number;
   name: string;
-  yaml: string;
-  markdown: string;
+  content: string;
   timestamp: Date;
 }
 
-class DocumentDatabase extends Dexie {
-  documents!: Table<Document>;
+class TSXDatabase extends Dexie {
+  documents!: Table<TSXDocument>;
 
   constructor() {
-    super("DocumentDatabase");
+    super("TSXDatabase");
     this.version(1).stores({
-      documents: "++id, name, yaml, markdown, timestamp",
+      documents: "++id, name, content, timestamp",
     });
   }
 }
 
-const db = new DocumentDatabase();
+const db = new TSXDatabase();
 
 export async function saveDocument(
   name: string,
-  yaml: string,
-  markdown: string
+  content: string
 ): Promise<number> {
   return await db.documents.add({
     name,
-    yaml,
-    markdown,
+    content,
     timestamp: new Date(),
   });
 }
@@ -37,13 +34,11 @@ export async function saveDocument(
 export async function updateDocument(
   id: number,
   name: string,
-  yaml: string,
-  markdown: string
+  content: string
 ): Promise<void> {
   await db.documents.update(id, {
     name,
-    yaml,
-    markdown,
+    content,
     timestamp: new Date(),
   });
 }
@@ -55,15 +50,17 @@ export async function updateDocumentName(
   await db.documents.update(id, { name });
 }
 
-export async function loadDocument(id: number): Promise<Document | undefined> {
+export async function loadDocument(
+  id: number
+): Promise<TSXDocument | undefined> {
   return await db.documents.get(id);
 }
 
-export async function loadLatestDocument(): Promise<Document | undefined> {
+export async function loadLatestDocument(): Promise<TSXDocument | undefined> {
   return await db.documents.orderBy("timestamp").last();
 }
 
-export async function getAllDocuments(): Promise<Document[]> {
+export async function getAllDocuments(): Promise<TSXDocument[]> {
   return await db.documents.orderBy("timestamp").reverse().toArray();
 }
 

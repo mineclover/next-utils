@@ -1,11 +1,10 @@
-import { useState, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { EditorView } from "@codemirror/view";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
 import { StreamLanguage } from "@codemirror/language";
-import { yaml as yamlMode } from "@codemirror/legacy-modes/mode/yaml";
-import jsYaml from "js-yaml";
+import { yaml } from "@codemirror/legacy-modes/mode/yaml";
 
 const CodeMirror = dynamic(
   () => import("@uiw/react-codemirror").then((mod) => mod.default),
@@ -13,28 +12,14 @@ const CodeMirror = dynamic(
 );
 
 interface YamlEditorProps {
-  initialValue: string;
+  value: string;
   onChange: (value: string) => void;
 }
 
-const YamlEditor: React.FC<YamlEditorProps> = ({ initialValue, onChange }) => {
-  const [value, setValue] = useState(initialValue);
-  const [error, setError] = useState<string | null>(null);
-
+const YamlEditor: React.FC<YamlEditorProps> = ({ value, onChange }) => {
   const handleChange = useCallback(
     (val: string) => {
-      setValue(val);
-      try {
-        jsYaml.load(val);
-        setError(null);
-        onChange(val);
-      } catch (e) {
-        if (e instanceof Error) {
-          setError(e.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
+      onChange(val);
     },
     [onChange]
   );
@@ -43,22 +28,17 @@ const YamlEditor: React.FC<YamlEditorProps> = ({ initialValue, onChange }) => {
     basicSetup(),
     oneDark,
     EditorView.lineWrapping,
-    StreamLanguage.define(yamlMode),
+    StreamLanguage.define(yaml),
   ];
 
   return (
-    <div>
-      <CodeMirror
-        value={value}
-        height="200px"
-        extensions={extensions}
-        onChange={handleChange}
-        theme={oneDark}
-      />
-      {error && (
-        <div style={{ color: "red", marginTop: "5px" }}>Error: {error}</div>
-      )}
-    </div>
+    <CodeMirror
+      value={value}
+      height="200px"
+      extensions={extensions}
+      onChange={handleChange}
+      theme={oneDark}
+    />
   );
 };
 

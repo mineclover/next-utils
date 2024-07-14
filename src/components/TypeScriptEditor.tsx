@@ -1,8 +1,7 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import dynamic from "next/dynamic";
 import { EditorView } from "@codemirror/view";
-import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
-import { languages } from "@codemirror/language-data";
+import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
 
@@ -11,12 +10,15 @@ const CodeMirror = dynamic(
   { ssr: false }
 );
 
-interface MarkdownEditorProps {
+interface TypeScriptEditorProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange }) => {
+const TypeScriptEditor: React.FC<TypeScriptEditorProps> = ({
+  value,
+  onChange,
+}) => {
   const handleChange = useCallback(
     (val: string) => {
       onChange(val);
@@ -26,11 +28,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange }) => {
 
   const extensions = [
     basicSetup(),
-    markdown({
-      base: markdownLanguage,
-      codeLanguages: languages,
-      addKeymap: true,
-    }),
+    javascript({ typescript: true }),
     oneDark,
     EditorView.lineWrapping,
   ];
@@ -38,7 +36,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange }) => {
   return (
     <CodeMirror
       value={value}
-      height="400px"
+      height="600px"
       extensions={extensions}
       onChange={handleChange}
       theme={oneDark}
@@ -46,4 +44,4 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange }) => {
   );
 };
 
-export default MarkdownEditor;
+export default TypeScriptEditor;
