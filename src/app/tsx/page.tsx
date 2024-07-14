@@ -141,7 +141,7 @@ export default function TSXEditorPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <>
       <div className={styles.editorSection}>
         <h1>TSX Editor</h1>
         <input
@@ -198,6 +198,6 @@ export default function TSXEditorPage() {
           ))}
         </ul>
       </div>
-    </div>
+    </>
   );
 }

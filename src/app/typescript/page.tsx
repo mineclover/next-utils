@@ -150,7 +150,7 @@ export default function TypeScriptEditorPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <>
       <div className={styles.editorSection}>
         <h1 className={styles.editorTitle}>TypeScript Editor</h1>
         <input
@@ -220,6 +220,6 @@ export default function TypeScriptEditorPage() {
           ))}
         </ul>
       </div>
-    </div>
+    </>
   );
 }

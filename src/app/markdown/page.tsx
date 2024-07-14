@@ -191,7 +191,7 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.container}>
+    <>
       <div className={styles.editorSection}>
         <h1 className={styles.editorTitle}>YAML and Markdown Editor</h1>
         <input
@@ -277,6 +277,6 @@ export default function Home() {
           ))}
         </ul>
       </div>
-    </div>
+    </>
   );
 }

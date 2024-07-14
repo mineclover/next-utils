@@ -1,5 +1,6 @@
 import NavHeader from "@/components/NavHeader";
 import "@/styles/global.css";
+import styles from "@/styles/EditorStyles.module.css";
 
 export const metadata = {
   title: "Next.js",
@@ -14,8 +15,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <NavHeader />
-        {children}
+        <div className={styles.container}>
+          <NavHeader />
+          {children}
+        </div>
       </body>
     </html>
   );
