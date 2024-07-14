@@ -1,0 +1,58 @@
+.container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.editorSection {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar {
+  width: 300px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  overflow-y: auto;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.documentList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.documentList li {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.documentList span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.documentList button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.documentList button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
