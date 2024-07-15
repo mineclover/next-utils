@@ -1,48 +1,78 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import dynamic from "next/dynamic";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  saveDocument,
-  updateDocument,
-  updateDocumentName,
-  loadDocument,
-  loadLatestDocument,
-  getAllDocuments,
-  deleteDocument,
-  TypeScriptDocument,
+  saveFile,
+  updateFile,
+  updateFileName,
+  updateFilePath,
+  getFile,
+  getAllFiles,
+  deleteFile,
+  getFileVersions,
+  TypeScriptFile,
+  TypeScriptVersion,
   checkDatabaseConnection,
 } from "@/model/typescriptDB";
+import { addPath, getAllPaths, deletePath } from "@/model/pathDB";
 import styles from "@/styles/EditorStyles.module.css";
+import Sidebar from "@/components/Sidebar";
+import Editor from "@/components/Editor";
+import FileVersions from "@/components/FileVersions";
 
-const TypeScriptEditor = dynamic(
-  () => import("@/components/TypeScriptEditor"),
-  {
-    ssr: false,
-  }
-);
+function generateAnonymousName(): string {
+  return `Untitled_${new Date().toISOString().replace(/[-:\.]/g, "_")}`;
+}
 
 export default function TypeScriptEditorPage() {
-  const [currentDocId, setCurrentDocId] = useState<number | undefined>();
-  const [documentName, setDocumentName] = useState(
-    "Untitled TypeScript Document"
-  );
+  const [currentFileId, setCurrentFileId] = useState<number | undefined>();
+  const [fileName, setFileName] = useState("");
   const [content, setContent] = useState(
     "// Start typing your TypeScript code here"
   );
-  const [savedDocuments, setSavedDocuments] = useState<TypeScriptDocument[]>(
-    []
-  );
+  const [commitName, setCommitName] = useState("");
+  const [description, setDescription] = useState("");
+  const [savedFiles, setSavedFiles] = useState<
+    Array<{ file: TypeScriptFile; latestVersion: TypeScriptVersion }>
+  >([]);
+  const [fileVersions, setFileVersions] = useState<TypeScriptVersion[]>([]);
   const [dbError, setDbError] = useState<string | null>(null);
-  const [editingDocId, setEditingDocId] = useState<number | null>(null);
+  const [currentPath, setCurrentPath] = useState<string>("/");
+  const [availablePaths, setAvailablePaths] = useState<string[]>(["/"]);
+  const [selectedSidebarPath, setSelectedSidebarPath] = useState<string>("/");
+  const [pathFileCount, setPathFileCount] = useState<Record<string, number>>(
+    {}
+  );
 
-  const loadAllDocuments = useCallback(async () => {
+  const loadAllFiles = useCallback(async () => {
     try {
-      const documents = await getAllDocuments();
-      setSavedDocuments(documents);
+      const files = await getAllFiles();
+      setSavedFiles(files);
+
+      const counts: Record<string, number> = {};
+      files.forEach(({ file }) => {
+        const pathParts = file.path.split("/").filter(Boolean);
+        let currentPath = "/";
+        counts[currentPath] = (counts[currentPath] || 0) + 1;
+        pathParts.forEach((part) => {
+          currentPath += part + "/";
+          counts[currentPath] = (counts[currentPath] || 0) + 1;
+        });
+      });
+      setPathFileCount(counts);
     } catch (error) {
-      console.error("Error loading documents:", error);
-      setDbError("Failed to load documents. Please refresh the page.");
+      console.error("Error loading files:", error);
+      setDbError("Failed to load files. Please refresh the page.");
+    }
+  }, []);
+
+  const loadAllPaths = useCallback(async () => {
+    try {
+      const paths = await getAllPaths();
+      setAvailablePaths(["/", ...paths]);
+    } catch (error) {
+      console.error("Error loading paths:", error);
+      setDbError("Failed to load paths. Please refresh the page.");
     }
   }, []);
 
@@ -50,20 +80,8 @@ export default function TypeScriptEditorPage() {
     const initDb = async () => {
       const isConnected = await checkDatabaseConnection();
       if (isConnected) {
-        loadLatestDocument()
-          .then((doc) => {
-            if (doc) {
-              setCurrentDocId(doc.id);
-              setDocumentName(doc.name);
-              setContent(doc.content);
-            }
-          })
-          .catch((error) => {
-            console.error("Error loading latest document:", error);
-            setDbError("Failed to load the latest document.");
-          });
-
-        loadAllDocuments();
+        await loadAllFiles();
+        await loadAllPaths();
       } else {
         setDbError(
           "Failed to connect to the database. Please refresh the page."
@@ -72,62 +90,127 @@ export default function TypeScriptEditorPage() {
     };
 
     initDb();
-  }, [loadAllDocuments]);
+  }, [loadAllFiles, loadAllPaths]);
 
   const handleSave = useCallback(async () => {
     try {
-      const newId = await saveDocument(documentName, content);
-      setCurrentDocId(newId);
-      await loadAllDocuments();
-      console.log("Document saved!");
-    } catch (error) {
-      console.error("Error saving document:", error);
-      setDbError("Failed to save the document. Please try again.");
-    }
-  }, [documentName, content, loadAllDocuments]);
+      let finalFileName = fileName || generateAnonymousName();
+      let finalCommitName = commitName || "Update file";
 
-  const handleLoad = async (id: number) => {
-    try {
-      const doc = await loadDocument(id);
-      if (doc) {
-        setCurrentDocId(doc.id);
-        setDocumentName(doc.name);
-        setContent(doc.content);
+      // 현재 경로와 파일 이름으로 이미 존재하는 파일 찾기
+      const existingFile = savedFiles.find(
+        ({ file }) => file.path === currentPath && file.name === finalFileName
+      );
+
+      if (existingFile) {
+        // 파일이 이미 존재하면 업데이트
+        await updateFile(
+          existingFile.file.id!,
+          content,
+          finalCommitName,
+          description
+        );
+        setCurrentFileId(existingFile.file.id);
+      } else {
+        // 새 파일 저장
+        const newId = await saveFile(
+          currentPath,
+          finalFileName,
+          content,
+          finalCommitName,
+          description
+        );
+        setCurrentFileId(newId);
       }
+
+      await loadAllFiles();
+      if (currentFileId !== undefined) {
+        const versions = await getFileVersions(currentFileId);
+        setFileVersions(versions);
+      }
+      setCommitName("");
+      setDescription("");
+      console.log("File saved!");
     } catch (error) {
-      console.error("Error loading document:", error);
-      setDbError("Failed to load the document. Please try again.");
+      console.error("Error saving file:", error);
+      setDbError("Failed to save the file. Please try again.");
+    }
+  }, [
+    currentPath,
+    fileName,
+    content,
+    commitName,
+    description,
+    loadAllFiles,
+    savedFiles,
+    currentFileId,
+  ]);
+
+  const handleAddPath = async (newPath: string) => {
+    if (newPath && newPath !== "/") {
+      await addPath(newPath);
+      await loadAllPaths();
+      await loadAllFiles();
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDeletePath = async (path: string) => {
+    if (path !== "/") {
+      await deletePath(path);
+      await loadAllPaths();
+      await loadAllFiles();
+      if (currentPath === path) {
+        setCurrentPath("/");
+      }
+      if (selectedSidebarPath === path) {
+        setSelectedSidebarPath("/");
+      }
+    }
+  };
+
+  const handleSelectPath = (path: string) => {
+    setSelectedSidebarPath(path);
+  };
+
+  const handleLoadFile = async (fileId: number) => {
     try {
-      await deleteDocument(id);
-      await loadAllDocuments();
-      if (id === currentDocId) {
-        setCurrentDocId(undefined);
-        setDocumentName("Untitled TypeScript Document");
+      const fileData = await getFile(fileId);
+      if (fileData) {
+        setCurrentFileId(fileData.file.id);
+        setFileName(fileData.file.name);
+        setContent(fileData.latestVersion.content);
+        setCurrentPath(fileData.file.path);
+        const versions = await getFileVersions(fileId);
+        setFileVersions(versions);
+      }
+    } catch (error) {
+      console.error("Error loading file:", error);
+      setDbError("Failed to load the file. Please try again.");
+    }
+  };
+
+  const handleDeleteFile = async (fileId: number) => {
+    try {
+      await deleteFile(fileId);
+      await loadAllFiles();
+      if (fileId === currentFileId) {
+        setCurrentFileId(undefined);
+        setFileName("");
         setContent("// Start typing your TypeScript code here");
+        setFileVersions([]);
       }
     } catch (error) {
-      console.error("Error deleting document:", error);
-      setDbError("Failed to delete the document. Please try again.");
+      console.error("Error deleting file:", error);
+      setDbError("Failed to delete the file. Please try again.");
     }
   };
 
-  const handleNameEdit = (id: number) => {
-    setEditingDocId(id);
-  };
-
-  const handleNameSave = async (id: number, newName: string) => {
-    try {
-      await updateDocumentName(id, newName);
-      setEditingDocId(null);
-      await loadAllDocuments();
-    } catch (error) {
-      console.error("Error updating document name:", error);
-      setDbError("Failed to update the document name. Please try again.");
-    }
+  const handleLoadVersion = (version: TypeScriptVersion) => {
+    setContent(version.content);
+    setCommitName(`Revert to: ${version.commitName}`);
+    setDescription(
+      `Reverted to version from ${version.timestamp.toLocaleString()}`
+    );
   };
 
   useEffect(() => {
@@ -150,76 +233,38 @@ export default function TypeScriptEditorPage() {
   }
 
   return (
-    <>
-      <div className={styles.editorSection}>
-        <h1 className={styles.editorTitle}>TypeScript Editor</h1>
-        <input
-          type="text"
-          value={documentName}
-          onChange={(e) => setDocumentName(e.target.value)}
-          placeholder="Document Name"
-          className={styles.documentNameInput}
+    <div className={styles.editorContainer}>
+      <Sidebar
+        availablePaths={availablePaths}
+        savedFiles={savedFiles}
+        pathFileCount={pathFileCount}
+        selectedSidebarPath={selectedSidebarPath}
+        onSelectPath={handleSelectPath}
+        onDeletePath={handleDeletePath}
+        onLoadFile={handleLoadFile}
+        onDeleteFile={handleDeleteFile}
+        onAddPath={handleAddPath}
+      />
+      <div className={styles.mainContent}>
+        <Editor
+          currentPath={currentPath}
+          fileName={fileName}
+          content={content}
+          commitName={commitName}
+          description={description}
+          onChangeFileName={setFileName}
+          onChangeContent={setContent}
+          onChangeCommitName={setCommitName}
+          onChangeDescription={setDescription}
+          onSave={handleSave}
+          onChangePath={setCurrentPath}
+          availablePaths={availablePaths}
         />
-        <button onClick={handleSave} className={styles.saveButton}>
-          Save Document
-        </button>
-        <p className={styles.shortcutInfo}>
-          Use Ctrl+S (Windows/Linux) or Cmd+S (Mac) to save
-        </p>
-        <div className={styles.typescriptEditor}>
-          <TypeScriptEditor value={content} onChange={setContent} />
-        </div>
+        <FileVersions
+          versions={fileVersions}
+          onLoadVersion={handleLoadVersion}
+        />
       </div>
-      <div className={styles.sidebar}>
-        <h2 className={styles.sidebarTitle}>Saved Documents</h2>
-        <ul className={styles.documentList}>
-          {savedDocuments.map((doc) => (
-            <li key={doc.id} className={styles.documentItem}>
-              {editingDocId === doc.id ? (
-                <input
-                  type="text"
-                  defaultValue={doc.name}
-                  onBlur={(e) =>
-                    doc.id && handleNameSave(doc.id, e.target.value)
-                  }
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      doc.id && handleNameSave(doc.id, e.currentTarget.value);
-                    }
-                  }}
-                  autoFocus
-                  className={styles.editNameInput}
-                />
-              ) : (
-                <span
-                  onClick={() => handleNameEdit(doc.id!)}
-                  className={styles.documentName}
-                >
-                  {doc.name}
-                </span>
-              )}
-              <span className={styles.documentTimestamp}>
-                {" "}
-                - {new Date(doc.timestamp).toLocaleString()}
-              </span>
-              <div className={styles.documentActions}>
-                <button
-                  onClick={() => doc.id && handleLoad(doc.id)}
-                  className={styles.actionButton}
-                >
-                  Load
-                </button>
-                <button
-                  onClick={() => doc.id && handleDelete(doc.id)}
-                  className={styles.actionButton}
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </>
+    </div>
   );
 }

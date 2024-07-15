@@ -160,3 +160,208 @@
   flex: 1;
   overflow: hidden;
 }
+
+.pathSelect {
+  margin-bottom: 10px;
+  padding: 5px;
+  font-size: 16px;
+  width: 200px;
+}
+
+/* path */
+
+.pathControl {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.pathSelect,
+.pathInput {
+  margin-right: 10px;
+  padding: 5px;
+  font-size: 16px;
+}
+
+.addPathButton,
+.deletePathButton {
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pathList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.pathItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.pathName {
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+.pathName:hover {
+  background-color: #f0f0f0;
+}
+
+.selectedPath {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+/* ... (기존 스타일은 유지) */
+
+.fileList,
+.versionList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fileItem,
+.versionItem {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  padding: 8px;
+}
+
+.fileInfo,
+.versionInfo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+}
+
+.fileName,
+.versionName {
+  font-weight: bold;
+  cursor: pointer;
+  color: #0066cc;
+}
+
+.fileName:hover,
+.versionName:hover {
+  text-decoration: underline;
+}
+
+.filePath,
+.fileTimestamp,
+.versionTimestamp {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.fileActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  margin-left: 8px;
+  padding: 4px 8px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background-color: #0052a3;
+}
+
+.versionDescription {
+  font-size: 0.9em;
+  margin-top: 4px;
+  color: #333;
+}
+
+.sidebarTitle {
+  font-size: 1.2em;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+/* ... (기존 스타일은 유지) */
+
+.fileList,
+.versionList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fileItem,
+.versionItem {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  padding: 8px;
+}
+
+.fileInfo,
+.versionInfo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+}
+
+.fileName,
+.versionName {
+  font-weight: bold;
+  cursor: pointer;
+  color: #0066cc;
+}
+
+.fileName:hover,
+.versionName:hover {
+  text-decoration: underline;
+}
+
+.filePath,
+.fileTimestamp,
+.versionTimestamp {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.fileActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  margin-left: 8px;
+  padding: 4px 8px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background-color: #0052a3;
+}
+
+.versionDescription {
+  font-size: 0.9em;
+  margin-top: 4px;
+  color: #333;
+}
+
+.sidebarTitle {
+  font-size: 1.2em;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
